@@ -37,9 +37,10 @@ int main()
   Console::puts("After your are done admiring your output, you can shutdown this 'machine'.\n");
   Console::puts("\n");
   Console::puts("WELCOME TO MY KERNEL!\n");
+    Console::puts("Howdy!\n");
   Console::puts("      ");
   Console::set_TextColor(GREEN, RED);
-  Console::puts("<NAME>\n");
+  Console::puts("Joseph Renteria\n");
   
   /* -- LOOP FOREVER! */
   for(;;);
