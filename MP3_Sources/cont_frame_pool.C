@@ -93,8 +93,12 @@ ContFramePool::ContFramePool(unsigned long _base_frame_no,
     if (list_head == NULL) {
         list_head = this;
     } else {
-
-        // WRITE THIS YOURSELF
+        //WRITE THIS YOURSELF
+        ContFramePool* curr = ContFramePool::list_head;
+        while (curr->next_pool) {
+            curr = curr->next_pool;
+        }
+        curr->next_pool = this;
     }
     next_pool = NULL; // pointer to the next pool
 
@@ -117,11 +121,6 @@ unsigned long ContFramePool::get_frames(unsigned int _n_frames)
     Console::puti(_n_frames);
     Console::puts(" frames\n");
 #endif
-    //Scheme
-    //00 head
-    //01 head
-    //10 free
-    //11 allocated
     unsigned long head_frame_no = 0;
 
     unsigned short free_bit_mask = 0xFF;
@@ -162,6 +161,9 @@ unsigned long ContFramePool::get_frames(unsigned int _n_frames)
                 if (n_cont_free_frames >= _n_frames) {
                     break;
                 }
+            }
+            if (i * 8 >= nframes) {
+                return 0;
             }
             // check if find enough contiguous free frames or cross boundary
             // WRITE THIS YOURSELF
@@ -259,7 +261,16 @@ unsigned long ContFramePool::get_frames(unsigned int _n_frames)
         // MARK ALL THE OTHER N-1 FRAMES AS ALLOCATED
 
         // WRITE THIS YOURSELF
-
+        mask = (0x80 >> offset);
+        // for loop for _n_frames
+        for (unsigned long counter = 0; counter <= _n_frames - 1; counter++) {
+            bitmap[i] ^= mask;
+            mask >>= 1;
+            if (mask == 0x00) {
+                mask = 0x80;
+                i++;
+            }
+        }
 #ifdef DEBUG_FRAMEPOOL
         Console::puts("Updated bitmap: ");
         for (i = bitmap_index; (i - bitmap_index) < nbitmap_blocks; i++) {
@@ -351,9 +362,12 @@ bool ContFramePool::check_and_release_frames(unsigned long _first_frame_no)
 
     head_bit_mask = 0x8000;
     free_bit_mask = 0x80;
-    while (((bitmap[i] & head_bit_mask) != 0) &&
-        ((bitmap[i] & free_bit_mask) == 0)) {
+    while (((bitmap[i] & head_bit_mask) != 0) && ((bitmap[i] & free_bit_mask) == 0)) {
         // WRITE THIS YOURSELF
+        // this condition passes for allocated frames
+        // simply set the entire bitmap to 11111111 11111111
+        bitmap[i] = 0xFFFF;
+        i++;
     }
     assert(free_bit_mask != 0);
     return true;
@@ -369,6 +383,7 @@ void ContFramePool::release_frames(unsigned long _first_frame_no)
         }
         // GO TO THE NEXT POOL
         // WRITE THIS YOURSELF
+        frame_pool_ptr = frame_pool_ptr->next_pool;
     }
 
     Console::puts("ERROR: Frame not released, belong to no one or not allcated\n");
