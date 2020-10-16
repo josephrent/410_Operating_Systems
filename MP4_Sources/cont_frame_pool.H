@@ -42,12 +42,19 @@ class ContFramePool {
     
 private:
     /* -- DEFINE YOUR CONT FRAME POOL DATA STRUCTURE(s) HERE. */
-    
+    unsigned long base_frame_no;
+    unsigned long nframes;
+    unsigned long n_free_frames;
+    unsigned long info_frame_no;
+    unsigned long n_info_frames;
+
+    unsigned short * bitmap; 
 public:
 
     // The frame size is the same as the page size, duh...    
-    static const unsigned int FRAME_SIZE = Machine::PAGE_SIZE; 
-
+    static const unsigned int FRAME_SIZE = Machine::PAGE_SIZE;
+    static ContFramePool * list_head;
+    ContFramePool * next_pool;
     ContFramePool(unsigned long _base_frame_no,
                   unsigned long _n_frames,
                   unsigned long _info_frame_no,
@@ -90,7 +97,6 @@ public:
      _base_frame_no: Number of first frame to mark as inaccessible.
      _n_frames: Number of contiguous frames to mark as inaccessible.
      */
-    
     static void release_frames(unsigned long _first_frame_no);
     /*
      Releases a previously allocated contiguous sequence of frames
@@ -101,7 +107,7 @@ public:
      This function must first identify the correct frame pool and then call the frame
      pool's release_frame function.
      */
-    
+    bool check_and_release_frames(unsigned long _first_frame_no);
     static unsigned long needed_info_frames(unsigned long _n_frames);
     /*
      Returns the number of frames needed to manage a frame pool of size _n_frames.
