@@ -108,7 +108,7 @@
 /*--------------------------------------------------------------------------*/
 /* DATA STRUCTURES */
 /*--------------------------------------------------------------------------*/
-
+ContFramePool * ContFramePool::list_head = NULL;
 /* -- (none) -- */
 
 /*--------------------------------------------------------------------------*/
@@ -154,7 +154,7 @@ ContFramePool::ContFramePool(unsigned long _base_frame_no,
 
     // Everything ok. Proceed to mark all bits in the bitmap to be FREE
     memsetw(bitmap, 0xFFFF, _nframes / 8);
-    for (unsigned int i = 0; i < _nframes / 8; i++) {
+    for(unsigned int i = 0; i < _nframes / 8; i++) {
         assert(bitmap[i] == 0xFFFF);
     }
 
@@ -171,7 +171,8 @@ ContFramePool::ContFramePool(unsigned long _base_frame_no,
     // link it in the list
     if (list_head == NULL) {
         list_head = this;
-    } else {
+    }
+    else {
         //WRITE THIS YOURSELF
         ContFramePool* curr = ContFramePool::list_head;
         while (curr->next_pool) {
@@ -212,11 +213,11 @@ unsigned long ContFramePool::get_frames(unsigned int _n_frames)
 
     // find the head of first free frame sequence (base_frame_no + bitmap_index * 8 + offset),
     // the above check should guaranttee we can find a free frame
-    while ((bitmap[i] & free_bit_mask) == 0x0) {
+    while((bitmap[i] & free_bit_mask) == 0x0) {
         i++;
     }
     bitmap_index = i;
-    while ((bitmap[i] & mask) == 0) {
+    while((bitmap[i] & mask) == 0) {
         mask >>= 1;
         offset++;
     }
