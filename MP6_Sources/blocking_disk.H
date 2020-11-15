@@ -36,7 +36,7 @@
 
 class BlockingDisk : public SimpleDisk {
 private:
-   static Queue block_queue;
+   static Queue blockQueue;
 public:
    BlockingDisk(DISK_ID _disk_id, unsigned int _size); 
    /* Creates a BlockingDisk device with the given size connected to the 
@@ -60,8 +60,8 @@ class MirroredDisk : public SimpleDisk {
 
 private:
 
-  static Queue master_block_queue;
-  static Queue slave_block_queue;
+  static Queue masterBlockQueue;
+  static Queue slaveBlockQueue;
   
   DISK_ID master_disk_id;
   DISK_ID slave_disk_id;
