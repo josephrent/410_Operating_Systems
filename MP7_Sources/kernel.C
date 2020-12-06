@@ -256,7 +256,7 @@ void fun3() {
 
     Console::puts("FUN 3 INVOKED! <THIS THREAD EXERCISES THE FILE SYSTEM> \n");
 
-    assert(FileSystem::Format(SYSTEM_DISK, (1 MB)));
+    assert(FileSystem->Format(SYSTEM_DISK, (1 MB)));
     
     assert(FILE_SYSTEM->Mount(SYSTEM_DISK));
            
