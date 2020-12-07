@@ -1,0 +1,5 @@
+1. Changed the static function "Format" to make it un-static as it referred to non-static variables.
+2. Bochs was giving the error "Undefined symbol XpmCreatePixmapFromData", so added "display_library: sdl" to bochsrc.bxrc. Please "sudo apt-get install bochs-sdl"
+"https://titanwolf.org/Network/Articles/Article?AID=11475774-799e-44d4-a2df-b9b00dd4ec4b#gsc.tab=0"
+3. Added helper functions getNode()
+4. Changed private variables in File.H to public

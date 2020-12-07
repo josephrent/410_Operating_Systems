@@ -12,8 +12,8 @@
 /* DEFINES */
 /*--------------------------------------------------------------------------*/
 
-#define FREE    0x0000
-#define USED    0xFFFF
+#define FREE 0x0000
+#define USED 0xFFFF
 
 /*--------------------------------------------------------------------------*/
 /* INCLUDES */
@@ -34,6 +34,7 @@ FileSystem::FileSystem() {
 	numFiles=0;
 	files=NULL;
 	memset(buf,0, 512); 
+    
 }
 
 /*--------------------------------------------------------------------------*/
@@ -42,18 +43,19 @@ FileSystem::FileSystem() {
 
 bool FileSystem::Mount(SimpleDisk * _disk) {
     Console::puts("mounting file system form disk\n");
-    disk=_disk;
+	disk=_disk;
 	return true;
 }
 
 bool FileSystem::Format(SimpleDisk * _disk, unsigned int _size) {
     Console::puts("formatting disk\n");
-    FILE_SYSTEM->setdisk(_disk);
-	memset(buf,0,512);
+	FILE_SYSTEM->setdisk(_disk);
+	int blockSize = 512;
+	memset(buf,0,BLOCKSIZE);
 
 	size = _size;
-	diskBlocks = size / 512;
-	memset(buf,0, 512);
+	diskBlocks = size / blockSize;
+	memset(buf,0, BLOCKSIZE);
 	for (int i = 0;i < diskBlocks; i++)
 		_disk->write(i,buf);
 	return true;
@@ -61,61 +63,64 @@ bool FileSystem::Format(SimpleDisk * _disk, unsigned int _size) {
 
 File * FileSystem::LookupFile(int _file_id) {
     Console::puts("looking up file\n");
-    for (int i = 0;i < numFiles + 1; i++){
-		if (files[i].file_id == _file_id)
-			return &files[i];
-	}
-	return NULL;
+    for (int i = 0; i <= numFiles; i++) {
+        if (files[i].file_id  == _file_id) {
+            return &files[i];
+        }
+    }
+    return NULL;
 }
 
 bool FileSystem::CreateFile(int _file_id) {
     Console::puts("creating file\n");
-    File* file=(File*) new File();
+	File* file=(File*) new File();
 	memset(buf, 0, 512);
 	file->file_id=_file_id;
 	
-	// Add file to files
-	AddFile(file);
-	return true;
-}
 
-void FileSystem::AddFile(File* newFile){
-	File* newFiles= new File[numFiles+1];
+	File* new_files= new File[numFiles+1];
 	if (files==NULL) {
-		files = newFiles;
-		files[0] = *newFile;
+		files = new_files;
+		files[0] = *file;
 		numFiles++;
 	}
 	else {
-		unsigned int i=0;
-		for (i=0;i<numFiles;++i)//copy old list
-			newFiles[i]=files[i];
-		newFiles[numFiles++]=*newFile;
+		for (unsigned int i = 0; i < numFiles; i++)
+			new_files[i]=files[i];
+		new_files[numFiles]=*file;
+		numFiles++;
 		
-		//Update |files| and files
 		delete files; 
-		files=newFiles;
+		files=new_files;
 	}
+	return true;
 }
+
 bool FileSystem::DeleteFile(int _file_id) {
     Console::puts("deleting file\n");
     File* newFiles= new File[numFiles];
-	int p = 0;
-	bool flag = false; 
-	for (int i = 0; i < numFiles; i++) {
+	int q = 0;
+	bool flagBool = false; 
+	for (unsigned int i = 0; i < numFiles; i++) {
 		if (files[i].file_id == _file_id){
 			files[i].Rewrite();
-			flag = true;
-			p = i + 1;
+			flagBool = true;
+			q = i + 1;
 		}
-		p = (flag ? i + 1 : i);
-		newFiles[i] = files[p];
+		if(flagBool) {
+			q = i + 1;
+		}
+		else {
+			q = i;
+		}
+		newFiles[i] = files[q];
 	}
-	// update numFiles and update files
-	numFiles = (p >= numFiles) ? numFiles-1 : numFiles; 
+	if (q >= numFiles)
+		numFiles = numFiles-1;
+	
 	delete files;
-	files=newFiles;
-	return flag;
+	files = newFiles;
+	return flagBool;
 }
 
 unsigned int FileSystem::getNode(){

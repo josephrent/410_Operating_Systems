@@ -29,8 +29,8 @@
 File::File() {
     /* We will need some arguments for the constructor, maybe pointer to disk
      block with file management and allocation data. */
-    //Console::puts("In file constructor.\n");
-	file_id = 0;
+    Console::puts("In file constructor.\n");
+    file_id = 0;
 	file_size = 0;
 	cur_dataNode = 0;
 	curDataNodes = NULL;
@@ -42,58 +42,61 @@ File::File() {
 
 int File::Read(unsigned int _n, char * _buf) {
     Console::puts("reading from file\n");
-	int count=_n;
-	memset(buf, 0, 512);
+	int num = _n;
+    int size = 512;
+	memset(buf, 0, size);
 
-	while (count > 0){
-		if (curDataNodes == NULL) {
+	while (num > 0) {
+		if (curDataNodes == NULL)
 			assert(false);
-        }
 		FILE_SYSTEM -> disk -> read(curDataNodes[cur_dataNode], buf);
 		for (cur_position; !EoF() && (cur_position < NODE_RANGE); cur_position++){
-			if (count == 0) {
-                break;
-            }
-			memcpy(_buf,buf + cur_position + 12,1);
-			count--;
-			_buf++;
-			if (cur_position == NODE_RANGE){
-				cur_position=0;
-				cur_dataNode++;
+			if(num == 0) {
 				break;
 			}
+            else {
+                memcpy(_buf,buf + cur_position + 12,1);
+                num--;
+                _buf++;
+                if (cur_position == NODE_RANGE){
+                    cur_position =0 ;
+                    cur_dataNode++;
+                    break;
+                }
+            }
 		}
 	}
-	return -(count-_n);
+	return (_n - num);
 }
 
 
 void File::Write(unsigned int _n, const char * _buf) {
     Console::puts("writing to file\n");
-	memset(buf, 0, 512);
-	int count=_n;
-	while (NODE_RANGE <= count || curDataNodes == NULL){
+    int size = 512;
+    memset(buf, 0, size);
+	int num=_n;
+	while (NODE_RANGE <= num || curDataNodes == NULL){
 		if (EoF()) {
 			GetNode();
 		}
 
 		memcpy(buf + 12,_buf,NODE_RANGE); 
 		FILE_SYSTEM->disk->write(curDataNodes[cur_dataNode],buf);
-		count-= NODE_RANGE;
+		num-= NODE_RANGE;
 	}
 	return;
 }
 
 void File::Reset() {
     Console::puts("reset current position in file\n");
-	cur_position = 0;
+    cur_position = 0;
 	cur_dataNode = 0;
     
 }
 
 void File::Rewrite() {
     Console::puts("erase content of file\n");
-	for(int i = 0; i < file_size; i++){
+    for(int i = 0; i < file_size; i++){
 		FILE_SYSTEM -> disk->read(curDataNodes[i],buf);
 		dataNode->useState = 0x0000; 
 		FILE_SYSTEM -> disk->write(curDataNodes[i],buf);
@@ -104,29 +107,20 @@ void File::Rewrite() {
 	cur_position = 0;
 }
 
+
 bool File::EoF() {
-	if (curDataNodes==NULL){
-		return true;
-	}
-	if (cur_position == NODE_RANGE-1 ){
-		return true;
-	}
-	return false;
+    Console::puts("testing end-of-file condition\n");
+    return ((curDataNodes==NULL) || (cur_position == NODE_RANGE-1 ));
 }
 
 void File::GetNode(){
-	unsigned int temp = FILE_SYSTEM -> getNode();
-	unsigned int* temp_array= new unsigned int[file_size+1];
-	for (unsigned int i = 0;i < file_size; i++)
-		temp_array[i] = curDataNodes[i];
-	if (curDataNodes!=NULL) {
-		temp_array[file_size] = temp;
-	}
-	else {
-		temp_array[0] = temp;
-	}
-	//Update |files| and replace files
+	unsigned int tempNode = FILE_SYSTEM -> getNode();
+	unsigned int* newDataNodes= new unsigned int[file_size+1];
+	for (unsigned int i = 0; i < file_size; i++)
+		newDataNodes[i] = curDataNodes[i];
+	if (curDataNodes!=NULL) newDataNodes[file_size] = tempNode;
+	else newDataNodes[0] = tempNode;
 	file_size++;
 	delete curDataNodes;
-	curDataNodes = temp_array;
+    curDataNodes = newDataNodes;
 }

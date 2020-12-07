@@ -20,6 +20,7 @@
 /*--------------------------------------------------------------------------*/
 /* INCLUDES */
 /*--------------------------------------------------------------------------*/
+
 #include "simple_disk.H"
 #include "file_system.H"
 #include "utils.H"
@@ -27,6 +28,7 @@
 /*--------------------------------------------------------------------------*/
 /* DATA STRUCTURES */ 
 /*--------------------------------------------------------------------------*/
+
 class FileSystem;
 extern FileSystem* FILE_SYSTEM;
 
@@ -36,18 +38,17 @@ extern FileSystem* FILE_SYSTEM;
 
 class File  {
     
-private:
-    /* -- your file data structures here ... */
-    
-    /* -- maybe it would be good to have a reference to the file system? */
-    
 public:
-	FileSystem* file_system;
+    /* -- your file data structures here ... */
+    FileSystem* file_system;
 	unsigned int   file_id;
 	unsigned int   file_size; 
 	unsigned int*  curDataNodes;
 	unsigned int   cur_dataNode; 
 	unsigned int   cur_position;
+    /* -- maybe it would be good to have a reference to the file system? */
+    
+public:
 
     File(/* you may need arguments here; maybe a pointer to the disk block
           containing file management and file allocation data */);
@@ -74,10 +75,7 @@ public:
     bool EoF();
     /* Is the current location for the file at the end of the file? */
 
-    void GetNode(); // helper function
-    /* Write _n characters to the file starting at the current location, 
-     if we run past the end of file, 
-     we increase the size of the file as needed. */
+    void GetNode(); 
 
 };
 

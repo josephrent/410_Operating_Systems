@@ -18,7 +18,7 @@
 /* DEFINES */
 /*--------------------------------------------------------------------------*/
 
-/* -- (none) -- */
+#define BLOCKSIZE 512
 
 /*--------------------------------------------------------------------------*/
 /* INCLUDES */
@@ -62,18 +62,17 @@ friend class File; /* -- not sure if we need this; feel free to delete */
 private:
      /* -- DEFINE YOUR FILE SYSTEM DATA STRUCTURES HERE. */
      
-     SimpleDisk * disk;
-     unsigned int size;
-
-    unsigned int diskBlocks;
-	File*  files;
-	unsigned int numFiles; // |files|
-	unsigned int curDataNode;// Where to look for more nodes
+        SimpleDisk * disk;
+        unsigned int size;
+        unsigned int diskBlocks;
+        File*  files;
+        unsigned int numFiles; // |files|
+        unsigned int curDataNode;// Where to look for more nodes
      
 public:
     void setdisk(SimpleDisk* _disk){
-		disk = _disk;
-	};
+        disk = _disk;
+    };
 
     FileSystem();
     /* Just initializes local data structures. Does not connect to disk yet. */
@@ -92,8 +91,6 @@ public:
     bool CreateFile(int _file_id);
     /* Create file with given id in the file system. If file exists already,
      abort and return false. Otherwise, return true. */
-
-    void AddFile(File* file); //helper function
     
     bool DeleteFile(int _file_id);
     /* Delete file with given id in the file system; free any disk block occupied by the file. */
